@@ -147,21 +147,22 @@ async function main() {
     }
 
     if (data) {
+  
+      Object.keys(data).forEach(key => {
+
+        if (data[key] !== '') {
+          return;
+        }
+
+        delete data[key];
+      });
+
       data = { ...extraction, ...data };
     } else {
       data = extraction;
     }
 
     data = sorter(data);
-
-    Object.keys(data).forEach(key => {
-      
-      if (data[key] !== '') {
-        return;
-      }
-
-      delete data[key];
-    });
 
     console.log(chalk.gray(`Writing the file ${file}`));
 
