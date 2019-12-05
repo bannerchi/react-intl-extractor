@@ -42,3 +42,19 @@ Options:
   
   -h, --help                output usage information
 ```
+
+### Advanced usage
+
+1. Add the command into your package.json scripts section:
+![](docs/db71fbf0e4.png)
+
+2. Add hook to Webpack for extraction of the keys on every change in your app
+![](docs/6fd14b7ef6.png)
+
+And then on every new key, like:
+![](docs/0fe5316a29.png)
+
+You will get updated locale files, like:
+![](docs/426fa4a429.png)
+
+That is it!
