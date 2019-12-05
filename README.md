@@ -52,6 +52,7 @@ Options:
 ![](docs/6fd14b7ef6.png)
 
 And then on every new key, like:
+
 ![](docs/0fe5316a29.png)
 
 You will get updated locale files, like:
