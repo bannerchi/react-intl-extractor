@@ -1,0 +1,20 @@
+{
+  "name": "react-intl-extractor",
+  "version": "1.0.0",
+  "description": "Translations extractor for react-intl module (React i18n module). Simple and fast.",
+  "main": "index.js",
+  "bin": {
+    "react-intl-extractor": "./index.js"
+  },
+  "author": "Roman Yakimchuk <yakimchuk.ry@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "commander": "^4.0.1",
+    "glob": "^7.1.6",
+    "is-string": "^1.0.4",
+    "locale-code": "^2.0.2",
+    "mkdirp": "^0.5.1",
+    "sort-object": "^3.0.3"
+  }
+}
