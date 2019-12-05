@@ -14,7 +14,16 @@
     "locale",
     "language",
     "tool",
-    "cli"
+    "cli",
+    "extract",
+    "extraction",
+    "localization",
+    "internationalization",
+    "reactjs",
+    "translation",
+    "intl",
+    "merge",
+    "keys"
   ],
   "author": "Roman Yakimchuk <yakimchuk.ry@gmail.com>",
   "license": "MIT",
