@@ -9,7 +9,7 @@ let fs = require('fs');
 let mkdirp = require('mkdirp');
 let sorter = require('sort-object');
 
-const textContainerRegex = /\<FormattedMessage.*id\=\"([^"]+)\".*\/\>/gi;
+const textContainerRegex = /\<Formatted(?:HTML)?Message.*id\=\"([^"]+)\".*\/\>/gi;
 const idRegex = /id\=\"([^"]+)\"/i;
 
 async function main() {
