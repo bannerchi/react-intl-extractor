@@ -11,12 +11,12 @@ extracts and saves gathered IDs in your JSON or JS file.
 ### Examples
 Extract keys from all files inside ../Projects/your-project-root, and place them as JSON files to folder ../Projects/your-project-root/locales
 
-`react-intl-extractor -l en-US,ru-RU,be-BY -r ../Projects/your-project-root -f json -o ../Projects/your-project-root/locales`
+`react-intl-extractor -l en-US,ru-RU,be-BY -r ./Projects/your-project-root -f json -o ./Projects/your-project-root/locales`
 
 It will output files:
-* `...your-project-root/locales/en-US.json`
-* `...your-project-root/locales/ru-RU.json`
-* `...your-project-root/locales/be-BY.json`
+* `./Projects/your-project-root/locales/en-US.json`
+* `./Projects/your-project-root/locales/ru-RU.json`
+* `./Projects/your-project-root/locales/be-BY.json`
 
 
 Note: All existing JSON files will be loaded and merged with new extracted keys, i.e. you will not lost all your current translations
@@ -42,20 +42,3 @@ Options:
   
   -h, --help                output usage information
 ```
-
-### Advanced usage
-
-1. Add the command into your package.json scripts section:
-![](docs/db71fbf0e4.png)
-
-2. Add hook to Webpack for extraction of the keys on every change in your app
-![](docs/6fd14b7ef6.png)
-
-And then on every new key, like:
-
-![](docs/0fe5316a29.png)
-
-You will get updated locale files, like:
-![](docs/426fa4a429.png)
-
-That is it!

@@ -31,8 +31,8 @@ async function main() {
     return value.split(',');
   }, ['js', 'jsx', 'ts', 'tsx']);
 
-  cli.requiredOption('-f, --format <format>', 'How to save extracted keys, possible values are "json" or "module" (it affects filename, it will be xx-XX.json or xx-XX.js)', 'module');
-  cli.requiredOption('-o, --outputDir <path>', 'Where to save output files, relative or absolute path to folder, default is current directory', process.cwd())
+  cli.requiredOption('-f, --format <format>', 'How to save extracted keys, possible values are "json" or "module" (it affects filename, it will be xx-XX.json or xx-XX.js)', 'json');
+  cli.requiredOption('-o, --outputDir <path>', 'Where to save output files, relative or absolute path to folder, default is current directory', process.cwd());
 
   cli.parse(process.argv);
 
