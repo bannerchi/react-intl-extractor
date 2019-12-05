@@ -154,6 +154,15 @@ async function main() {
 
     data = sorter(data);
 
+    Object.keys(data).forEach(key => {
+      
+      if (data[key] !== '') {
+        return;
+      }
+
+      delete data[key];
+    });
+
     console.log(chalk.gray(`Writing the file ${file}`));
 
     let content;
