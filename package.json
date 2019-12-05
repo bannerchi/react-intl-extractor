@@ -6,6 +6,16 @@
   "bin": {
     "react-intl-extractor": "./index.js"
   },
+  "keywords": [
+    "react",
+    "i18n",
+    "l10n",
+    "translate",
+    "locale",
+    "language",
+    "tool",
+    "cli"
+  ],
   "author": "Roman Yakimchuk <yakimchuk.ry@gmail.com>",
   "license": "MIT",
   "dependencies": {
