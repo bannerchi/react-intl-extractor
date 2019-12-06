@@ -1,6 +1,6 @@
 {
   "name": "react-intl-extractor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Translations extractor for react-intl module (React i18n module). Simple and fast.",
   "main": "index.js",
   "bin": {
