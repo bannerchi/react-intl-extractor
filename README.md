@@ -9,7 +9,7 @@ This tool crawl all files in your application, searches strings `<FormattedMessa
 extracts and saves gathered IDs in your JSON or JS file.
 
 ### Demo
-
+![](https://raw.githubusercontent.com/yakimchuk/react-intl-extractor/master/docs/demo.gif)
 
 ### Examples
 Extract keys from all files inside ../Projects/your-project-root, and place them as JSON files to folder ../Projects/your-project-root/locales
