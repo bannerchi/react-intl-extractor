@@ -6,6 +6,7 @@
   "bin": {
     "react-intl-extractor": "./index.js"
   },
+  "repository": "github:yakimchuk/react-intl-extractor",
   "keywords": [
     "react",
     "i18n",
