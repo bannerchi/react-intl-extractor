@@ -8,11 +8,9 @@ let glob = require('glob');
 let fs = require('fs');
 let mkdirp = require('mkdirp');
 let sorter = require('sort-object');
+let _ = require('lodash');
 
-const textContainerRegex = /\<Formatted(?:HTML)?Message.*id\=\"([^"]+)\".*\/\>/gi;
-const idRegex = /id\=\"([^"]+)\"/i;
-
-async function main() {
+function initOptions() {
 
   cli.requiredOption('-l, --locales <items>', 'Comma-separated list of locales files to output (ex. "en-US,ru-RU"', function (value) {
 
@@ -36,6 +34,10 @@ async function main() {
 
   cli.parse(process.argv);
 
+}
+
+function getFiles() {
+
   let files;
   let absolutePath = path.resolve(__dirname, cli.root);
   let pattern = `${absolutePath}/**/*.@(${cli.extensions.join('|')})`;
@@ -54,51 +56,99 @@ async function main() {
     throw new Error(chalk.red(error.message));
   }
 
-  console.log(chalk.gray(`Found ${files.length} file(s), processing`));
+  return files;
+}
 
-  let extraction = {};
+function getFileContent(filepath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filepath, 'utf8', (error, data) => {
+
+      if (error) {
+        reject(error);
+      }
+
+      resolve(data);
+    });
+  });
+}
+
+function extractTagMessages(content) {
+
+  let extractions = {};
+
+  let matches = content.match(/\<Formatted(?:HTML)?Message.*id\=['"]{1}([^"']+)['"]{1}.*\/\>/gi);
+
+  if (matches === null) {
+    return;
+  }
+
+  console.log(chalk.gray(`Found ${matches.length} translation entries in file, processing`));
+
+  matches.forEach(entry => {
+
+    let regex = /id\=['"]{1}([^'"]+)['"]{1}/i;
+    let match = entry.match(regex);
+
+    if (match === null) {
+      console.error(`Found unexpected translation ${entry}, check the source code, we cannot find attribute "id" (regex is ${regex.toString()}), skipped`);
+      return;
+    }
+
+    let id = match[1];
+
+    extractions[id] = "";
+
+  });
+
+  return extractions;
+}
+
+function extractSourceMessages(content) {
+
+  let extractions = {};
+
+  let matches = content.match(/formatMessage\s*\(\s*\{.*id\s*['"]?\:\s*['"]{1}([^'"]+)["']{1}.*\}/gi);
+
+  console.log(content, matches);
+
+  if (matches === null) {
+    return;
+  }
+
+  console.log(chalk.gray(`Found ${matches.length} translation entries in file, processing`));
+
+  matches.forEach(entry => {
+
+    let regex = /id\:\s*['"]{1}([^'"]+)['"]{1}/i;
+    let match = entry.match(regex);
+
+    if (match === null) {
+      console.error(`Found unexpected translation ${entry}, check the source code, we cannot find attribute "id" (regex is ${regex.toString()}), skipped`);
+      return;
+    }
+
+    let id = match[1];
+
+    extractions[id] = "";
+
+  });
+
+  return extractions;
+}
+
+async function extract(files) {
+
+  let extractions = {};
 
   try {
     await Promise.all(files.map(async (filepath) => {
 
       console.log(chalk.gray(`Processing file ${filepath}`));
 
-      let content = await new Promise((resolve, reject) => {
-        fs.readFile(filepath, 'utf8', (error, data) => {
+      let content = await getFileContent(filepath);
 
-          if (error) {
-            reject(error);
-          }
-
-          resolve(data);
-        });
-      });
-
-      let matches = content.match(textContainerRegex);
-
-      // <FormattedMessage id="test" />
-      // <FormattedMessage id="a" />
-
-      if (matches === null) {
-        return;
-      }
-
-      console.log(chalk.gray(`Found ${matches.length} translation entries in file ${filepath}, processing`));
-
-      matches.forEach(entry => {
-
-        let match = entry.match(idRegex);
-
-        if (match === null) {
-          console.error(`Found unexpected translation ${entry}, check the source code, we cannot find attribute "id" (regex is ${idRegex.toString()}), skipped`);
-          return;
-        }
-
-        let id = match[1];
-
-        extraction[id] = "";
-
-      });
+      addExtractions(extractTagMessages(content));
+      addExtractions(extractSourceMessages(content));
 
     }));
 
@@ -107,6 +157,125 @@ async function main() {
     throw new Error(error);
   }
 
+  return extractions;
+
+  function addExtractions(model) {
+    extractions = Object.assign(extractions, model);
+  }
+
+}
+
+function getLocaleFilePath(locale) {
+
+  let folder = path.resolve(cli.root, cli.outputDir);
+
+  mkdirp.sync(folder);
+
+  let ext;
+
+  switch (cli.format) {
+
+    case 'json':
+      ext = 'json';
+      break;
+
+    case 'module':
+      ext = 'js';
+      break;
+
+    default:
+      throw new Error(`Unknown output type ${cli.format}`);
+  }
+
+  return path.resolve(folder, `${locale}.${ext}`);
+}
+
+function loadLocale(locale) {
+
+  let file = getLocaleFilePath(locale);
+
+  let data;
+
+  if (cli.format === 'json') {
+    try {
+      data = require(file);
+      console.log(chalk.green(`Found file ${file}, it will be extended`));
+    } catch (error) {
+      data = {};
+      console.log(chalk.gray(`File ${file} does not exists, it will be created`));
+    }
+  }
+
+  return data;
+}
+
+function extractionToMessages(extraction) {
+
+  let translations = {};
+
+  _.forEach(_.keys(extraction), key => {
+
+    let path = _.toPath(key);
+
+    path.reduce((current, key, index) => {
+
+      if (index === path.length - 1) {
+        current[key] = "";
+      } else {
+        current[key] = {};
+      }
+
+      return current[key];
+
+    }, translations);
+
+  });
+
+  return translations;
+}
+
+function writeLocale(locale, translations) {
+
+  let file = getLocaleFilePath(locale);
+  let content;
+
+  console.log(chalk.gray(`Writing the file ${file}`));
+
+  switch (cli.format) {
+
+    case 'json':
+      content = JSON.stringify(translations, null, 2);
+      break;
+
+    case 'module':
+      content = 'export default ' + JSON.stringify(translations, null, 2);
+      break;
+
+    default:
+      throw new Error(`Unknown output type ${cli.format}`);
+  }
+
+  try {
+    fs.writeFileSync(file, content, 'utf8');
+  } catch (error) {
+    console.log(chalk.red(`Cannot write file, see the error below:\n`));
+    throw new Error(error);
+  }
+
+  console.log(chalk.green(`File ${file} has been written!`));
+
+}
+
+async function main() {
+
+  initOptions();
+
+  let files = getFiles();
+
+  console.log(chalk.gray(`Found ${files.length} file(s), processing`));
+
+  let extraction = await extract(files);
+
   console.log(chalk.green(`Cool, found ${Object.keys(extraction).length} translation keys in total`));
   console.log(chalk.gray(`Exporting keys (format ${cli.format})`));
 
@@ -114,83 +283,13 @@ async function main() {
 
     console.log(chalk.gray(`Processing locale ${locale}`));
 
-    let folder = path.resolve(cli.root, cli.outputDir);
+    let data = loadLocale(locale); // It is an object
+    let translations = extractionToMessages(extraction); // It is an object too, not just pairs
 
-    mkdirp.sync(folder);
+    translations = _.extend(translations, data);
+    translations = sorter(translations);
 
-    let data;
-    let ext;
-
-    switch (cli.format) {
-
-      case 'json':
-        ext = 'json';
-        break;
-
-      case 'module':
-        ext = 'js';
-        break;
-
-      default:
-        throw new Error(`Unknown output type ${cli.format}`);
-    }
-
-    let file = path.resolve(folder, `${locale}.${ext}`);
-
-    if (ext === 'json') {
-      try {
-        data = require(file);
-        console.log(chalk.green(`Found file ${file}, it will be extended`));
-      } catch (error) {
-        console.log(chalk.gray(`File ${file} does not exists, it will be created`));
-      }
-    }
-
-    if (data) {
-  
-      Object.keys(data).forEach(key => {
-
-        if (data[key] !== '') {
-          return;
-        }
-
-        delete data[key];
-      });
-
-      data = { ...extraction, ...data };
-    } else {
-      data = extraction;
-    }
-
-    data = sorter(data);
-
-    console.log(chalk.gray(`Writing the file ${file}`));
-
-    let content;
-
-    switch (cli.format) {
-
-      case 'json':
-        content = JSON.stringify(data, null, 2);
-        break;
-
-      case 'module':
-        content = 'export default ' + JSON.stringify(data, null, 2);
-        break;
-
-      default:
-        throw new Error(`Unknown output type ${cli.format}`);
-    }
-
-    try {
-      fs.writeFileSync(file, content, 'utf8');
-    } catch (error) {
-      console.log(chalk.red(`Cannot write file, see the error below:\n`));
-      throw new Error(error);
-    }
-
-    console.log(chalk.green(`File ${file} has been written!`));
-
+    writeLocale(locale, translations);
   });
 
 }

@@ -5,8 +5,10 @@ Command line tool for extraction of i18n keys from your app with `react-intl`. F
 `npm install react-intl-extractor -g`
 
 ## Usage
-This tool crawl all files in your application, searches strings `<FormattedMessage ... id="..." />` and then 
-extracts and saves gathered IDs in your JSON or JS file.
+This tool crawl all files in your application, searches strings `<FormattedMessage ... id="..." />`,
+`<FormattedHTMLMessage ... id="..." />` or calls `formatMessage({ ... id: "...", ... })` and then
+extracts and saves gathered IDs in your JSON or JS file. Extracted props can be nested, if they values are with dots, like
+ `id="foo.bar.baz"`, it will produce structure `{ foo: { bar: { baz: "<YOUR_TRANSLATION_HERE>" } } }`.
 
 ### Demo
 ![](https://raw.githubusercontent.com/yakimchuk/react-intl-extractor/master/docs/demo.gif)

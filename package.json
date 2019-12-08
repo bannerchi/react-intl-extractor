@@ -34,6 +34,7 @@
     "glob": "^7.1.6",
     "is-string": "^1.0.4",
     "locale-code": "^2.0.2",
+    "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "sort-object": "^3.0.3"
   }
