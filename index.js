@@ -39,7 +39,7 @@ function initOptions() {
 function getFiles() {
 
   let files;
-  let absolutePath = path.resolve(__dirname, cli.root);
+  let absolutePath = path.resolve(process.cwd(), cli.root);
   let pattern = `${absolutePath}/**/*.@(${cli.extensions.join('|')})`;
 
   console.log(chalk.green('Searching for the files by pattern (glob): ' + pattern));
