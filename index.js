@@ -109,8 +109,6 @@ function extractSourceMessages(content) {
 
   let matches = content.match(/formatMessage\s*\(\s*\{.*id\s*['"]?\:\s*['"]{1}([^'"]+)["']{1}.*\}/gi);
 
-  console.log(content, matches);
-
   if (matches === null) {
     return;
   }
