@@ -4,27 +4,29 @@ Command line tool for extraction of i18n keys from your app with `react-intl`. F
 ## Installation
 `npm install react-intl-extractor -g`
 
-## Usage
-This tool crawl all files in your application, searches strings `<FormattedMessage ... id="..." />`,
-`<FormattedHTMLMessage ... id="..." />` or calls `formatMessage({ ... id: "...", ... })` and then
-extracts and saves gathered IDs in your JSON or JS file. Extracted props can be nested, if they values are with dots, like
- `id="foo.bar.baz"`, it will produce structure `{ foo: { bar: { baz: "<YOUR_TRANSLATION_HERE>" } } }`.
-
 ### Demo
 ![](https://raw.githubusercontent.com/yakimchuk/react-intl-extractor/master/docs/demo.gif)
 
-### Examples
-Extract keys from all files inside ../Projects/your-project-root, and place them as JSON files to folder ../Projects/your-project-root/locales
+### Usage
+See options below
 
-`react-intl-extractor -l en-US,ru-RU,be-BY -r ./Projects/your-project-root -f json -o ./Projects/your-project-root/locales`
+### Formats
+This tool support formats:
 
-It will output files:
-* `./Projects/your-project-root/locales/en-US.json`
-* `./Projects/your-project-root/locales/ru-RU.json`
-* `./Projects/your-project-root/locales/be-BY.json`
+* `<FormatMessage id="<string>" />`
+* `<FormatHTMLMessage id="<string>" />`
+* `formatMessage({ id: "<string>" })`
 
+Where `string` is ID of your i18n key in output. If it has dots (like, `foo.bar.baz`), then it will be 
+split in nested structure (see the demo).
 
-Note: All existing JSON files will be loaded and merged with new extracted keys, i.e. you will not lost all your current translations
+### Notes
+
+Cool things about the tool:
+
+* If you already have JSON file with i18n, then it will override it preserving your current i18n values (output objects will be merged)
+* Very fast (all extraction process can be done almost immediately)
+* Supports all needed formats, except `defineMessages` (see todo section below)
 
 ### Options
 See help message `react-intl-extractor --help`:
@@ -47,3 +49,11 @@ Options:
   
   -h, --help                output usage information
 ```
+
+### Todo
+
+Friends, be free to contribute. Now there are a few features needed:
+* Extraction from `defineMessages`
+* Command Line Interface (step-by-step interaction; GUI)
+
+Cheers!
