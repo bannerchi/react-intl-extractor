@@ -220,7 +220,9 @@ function extractionToMessages(extraction) {
       if (index === path.length - 1) {
         current[key] = "";
       } else {
-        current[key] = {};
+        if (!_.isObject(current[key])) {
+          current[key] = {};
+        }
       }
 
       return current[key];
