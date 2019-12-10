@@ -10,6 +10,8 @@ let mkdirp = require('mkdirp');
 let sorter = require('sort-object');
 let _ = require('lodash');
 let extend = require('deep-extend');
+let esprima = require('esprima');
+let esprimaUtils = require('esprima-ast-utils');
 
 function initOptions() {
 
@@ -111,7 +113,7 @@ function extractSourceMessages(content) {
   let matches = content.match(/formatMessage\s*\(\s*\{.*id\s*['"]?\:\s*['"]{1}([^'"]+)["']{1}.*\}/gi);
 
   if (matches === null) {
-    return;
+    return extractions;
   }
 
   console.log(chalk.gray(`Found ${matches.length} translation entries in file, processing`));
@@ -135,6 +137,90 @@ function extractSourceMessages(content) {
   return extractions;
 }
 
+function extractDefinedMessages(content) {
+
+  let extractions = {};
+
+  let match = content.match(/defineMessages\s*\(\s*(\{(?:\s|.)*\})\s*\)\s*;?/);
+
+  if (match === null) {
+    return extractions;
+  }
+
+  let object = match[1];
+  let source = `let data = ${object}`;
+
+  try {
+
+    let ast = esprima.parseScript(source);
+
+    // console.log(source);
+
+    esprimaUtils.traverse(ast, function (node, parent) {
+
+      if (node.type !== 'Property') {
+        return;
+      }
+
+      if (node.key.type !== 'Identifier') {
+        return;
+      }
+
+      let key = node.key.name;
+
+      if (key !== 'id') {
+        return;
+      }
+
+      // At this point is found a message declaration
+      let id;
+      let value;
+
+      parent.properties.forEach(property => {
+
+        if (property.type !== 'Property') {
+          return;
+        }
+
+        if (property.key.type !== 'Identifier') {
+          return;
+        }
+
+        if (property.value.type !== 'Literal') {
+          return;
+        }
+
+        switch (property.key.name) {
+          case 'id':
+            id = property.value.value;
+            break;
+          case 'defaultMessage':
+            value = property.value.value;
+            break;
+        }
+
+      });
+
+      if (!id) {
+        return;
+      }
+
+      if (!value) {
+        value = '';
+      }
+
+      extractions[id] = value;
+    });
+
+  } catch (error) {
+    console.log(chalk.red('Cannot parse defineMessages object, see error below:'));
+    console.error(error);
+    console.log(chalk.red('Source script: ' + source));
+  }
+
+  return extractions;
+}
+
 async function extract(files) {
 
   let extractions = {};
@@ -148,6 +234,7 @@ async function extract(files) {
 
       addExtractions(extractTagMessages(content));
       addExtractions(extractSourceMessages(content));
+      addExtractions(extractDefinedMessages(content));
 
     }));
 
@@ -216,17 +303,17 @@ function extractionToMessages(extraction) {
 
     let path = _.toPath(key);
 
-    path.reduce((current, key, index) => {
+    path.reduce((current, prop, index) => {
 
       if (index === path.length - 1) {
-        current[key] = "";
+        current[prop] = extraction[key] || "";
       } else {
-        if (!_.isObject(current[key])) {
-          current[key] = {};
+        if (!_.isObject(current[prop])) {
+          current[prop] = {};
         }
       }
 
-      return current[key];
+      return current[prop];
 
     }, translations);
 
@@ -286,6 +373,9 @@ async function main() {
 
     let data = loadLocale(locale); // It is an object
     let translations = extractionToMessages(extraction); // It is an object too, not just pairs
+
+    // console.log(translations, data);
+    // todo: Here empty keys from current locale data will override default messages from extracted data; think about it later
 
     translations = extend(translations, data);
     translations = sorter(translations);

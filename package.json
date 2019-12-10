@@ -32,6 +32,8 @@
     "chalk": "^3.0.0",
     "commander": "^4.0.1",
     "deep-extend": "^0.6.0",
+    "esprima": "^4.0.1",
+    "esprima-ast-utils": "0.0.7",
     "glob": "^7.1.6",
     "is-string": "^1.0.4",
     "locale-code": "^2.0.2",

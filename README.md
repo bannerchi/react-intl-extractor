@@ -16,6 +16,7 @@ This tool support formats:
 * `<FormatMessage id="<string>" />`
 * `<FormatHTMLMessage id="<string>" />`
 * `formatMessage({ id: "<string>" })`
+* `defineMessages({ ... (see react-intl doc) ... })`
 
 Where `string` is ID of your i18n key in output. If it has dots (like, `foo.bar.baz`), then it will be 
 split in nested structure (see the demo).
@@ -53,7 +54,6 @@ Options:
 ### Todo
 
 Friends, be free to contribute. Now there are a few features needed:
-* Extraction from `defineMessages`
 * Command Line Interface (step-by-step interaction; GUI)
 
 Cheers!
