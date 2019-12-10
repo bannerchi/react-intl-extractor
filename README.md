@@ -27,7 +27,7 @@ Cool things about the tool:
 
 * If you already have JSON file with i18n, then it will override it preserving your current i18n values (output objects will be merged)
 * Very fast (all extraction process can be done almost immediately)
-* Supports all needed formats, except `defineMessages` (see todo section below)
+* Supports all needed formats
 
 ### Options
 See help message `react-intl-extractor --help`:
