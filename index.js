@@ -9,6 +9,7 @@ let fs = require('fs');
 let mkdirp = require('mkdirp');
 let sorter = require('sort-object');
 let _ = require('lodash');
+let extend = require('deep-extend');
 
 function initOptions() {
 
@@ -286,7 +287,7 @@ async function main() {
     let data = loadLocale(locale); // It is an object
     let translations = extractionToMessages(extraction); // It is an object too, not just pairs
 
-    translations = _.extend(translations, data);
+    translations = extend(translations, data);
     translations = sorter(translations);
 
     writeLocale(locale, translations);
